@@ -3,6 +3,9 @@ const boardSquares = document.getElementsByClassName("square");
 const pieces = document.getElementById("piece");
 const piecesImages = document.getElementsByTagName("img");
 
+//turns funtionality
+let isWhiteTurn = true;
+
 setUpBoardSquares()
 setupPieces();
 // Setting up the board
@@ -40,7 +43,12 @@ const allowDrop = ev => {
 
 const drag = ev => {
     const piece = ev.target;
-    ev.dataTransfer.setData("text", piece.id);
+    const pieceColor = piece.getAttribute("color");
+    if ((isWhiteTurn && pieceColor == "white") || (!isWhiteTurn && pieceColor == "black")) {
+        ev.dataTransfer.setData("text", piece.id);
+        const startingSquareId = piece.parentNode.id;
+    }
+
 }
 
 const drop = ev => {
@@ -49,5 +57,28 @@ const drop = ev => {
     const piece = document.getElementById(data);
     const destinationSquare = ev.currentTarget;
     let destinationSquareId = destinationSquare.id;
-    destinationSquare.appendChild(piece);
+
+    if (isSquareOccupied(destinationSquare) == 'blank') {
+        destinationSquare.appendChild(piece);
+        isWhiteTurn = !isWhiteTurn;
+        return;
+    }
+    if (isSquareOccupied(destinationSquare) != 'blank') {
+        while (destinationSquare.firstChild) {
+            destinationSquare.removeChild(destinationSquare.firstChild)
+        }
+        destinationSquare.appendChild(piece);
+        isWhiteTurn = !isWhiteTurn;
+        return;
+    }
+}
+
+const isSquareOccupied = square => {
+    if (square.querySelector(".piece")) {
+        const color = square.querySelector('.piece').getAttribute('color');
+        return color
+    }
+    else {
+        return "blank"
+    }
 }
